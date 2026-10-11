@@ -6,10 +6,10 @@ import { filterPlaces, sortPlaces } from './domain/places'
 import { cleanPlace } from './domain/placeDraft'
 import type { Group, MapData, Place } from './domain/types'
 import { parseMapDataJson, type ImportResult } from './domain/validate'
-import { reverseGeocode } from './geo/nominatim'
+import { reverseGeocode, type SearchResult } from './geo/nominatim'
 import { BASEMAPS, DEFAULT_BASEMAP_ID, GOOGLE_BASEMAPS, type Basemap } from './map/basemaps'
 import { useGoogleTiles } from './map/google'
-import { MapView, type MapApi } from './map/MapView'
+import { MapView, type MapApi, type SearchHit } from './map/MapView'
 import { dataReducer } from './state/dataReducer'
 import { loadData, loadSettings, saveData, saveSettings, type Settings } from './state/storage'
 import { AddressSearch } from './ui/AddressSearch'
@@ -76,6 +76,7 @@ export function App() {
   const [toast, setToast] = useState<ToastState | null>(null)
   const [query, setQuery] = useState('')
   const [sheetOpen, setSheetOpen] = useState(true)
+  const [searchHit, setSearchHit] = useState<SearchHit>()
   // `?display` in the URL starts in display mode, e.g. for a bookmarked wall display.
   const [displayMode, setDisplayMode] = useState(() => new URLSearchParams(window.location.search).has('display'))
   const mapApi = useRef<MapApi>(null)
@@ -203,6 +204,20 @@ export function App() {
   function selectPlace(id: string) {
     mapApi.current?.focusPlace(id)
     if (isPhone) setSheetOpen(false)
+  }
+
+  // --- Address search ---------------------------------------------------------
+  /** On phones the sheet is collapsed first, so the result isn't squeezed above it. */
+  function showSearchResult(r: SearchResult) {
+    setSearchHit({ lat: r.lat, lng: r.lng, label: r.name || r.address })
+    const collapse = isPhone && sheetOpen
+    if (collapse) setSheetOpen(false)
+    setTimeout(() => mapApi.current?.showLocation(r.lat, r.lng, r.bounds), collapse ? 250 : 0)
+  }
+
+  function addPlaceAtSearchResult(r: SearchResult) {
+    mapApi.current?.showLocation(r.lat, r.lng)
+    startDraft(r.lat, r.lng, { address: r.address, name: r.name })
   }
 
   // --- Groups -----------------------------------------------------------------
@@ -385,13 +400,6 @@ export function App() {
             />
           ) : (
             <>
-              <AddressSearch
-                onShow={(r) => mapApi.current?.showLocation(r.lat, r.lng, r.bounds)}
-                onAddHere={(r) => {
-                  mapApi.current?.showLocation(r.lat, r.lng)
-                  startDraft(r.lat, r.lng, { address: r.address, name: r.name })
-                }}
-              />
               <GroupList
                 groups={data.groups}
                 counts={counts}
@@ -434,6 +442,7 @@ export function App() {
           places={mapPlaces}
           groupsById={groupsById}
           draft={draft}
+          searchHit={searchHit}
           adding={adding}
           initialView={initialView}
           onMapClick={(lat, lng) => startDraft(lat, lng)}
@@ -441,6 +450,11 @@ export function App() {
           onViewChange={(view) => updateSettings({ view })}
           onEdit={editPlace}
           onDelete={deletePlace}
+        />
+        <AddressSearch
+          onShow={showSearchResult}
+          onClear={() => setSearchHit(undefined)}
+          onAddHere={panel.kind === 'browse' || panel.kind === 'adding' ? addPlaceAtSearchResult : undefined}
         />
         <MapControls
           basemapId={settings.basemapId}

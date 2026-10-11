@@ -32,6 +32,14 @@ export function pinIcon(color: string, icon: IconName, editing = false): L.DivIc
   return divIcon
 }
 
+/** Target marker for an address search result: a ring around a dot, unlike any place pin. */
+export const searchHitIcon = L.divIcon({
+  className: 'search-hit',
+  html: '<span class="search-hit-ring"></span><span class="search-hit-dot"></span>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+})
+
 /** Marker option carrying the pin color, so cluster icons can show the mix of colors inside. */
 export interface PinMarkerOptions extends L.MarkerOptions {
   pinColor?: string

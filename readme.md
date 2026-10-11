@@ -76,7 +76,9 @@ A place (a location on the map) has:
 ## Using the app
 
 - **Add**: press *Add*, then click the map. The pin drops, the address and title are pre-filled via Nominatim, and the edit form opens in the sidebar.
-- **Search**: an address search box (runs on Enter, no autocomplete) flies the map to the result so you can place a pin. This follows Nominatim's usage policy: at most 1 request per second, no search-as-you-type.
+- **Go to** (search box on the map, top left): type an address, city, landmark or country and press Enter. The map zooms and pans to the best match and marks it with a labelled ring. Other matches are listed below the box; pick one to go there instead, or press the pin-plus button next to a match to add a place there. Esc closes the list, a second Esc clears the search and the marker. On a phone the bottom sheet collapses so the result is visible.
+  - Uses OpenStreetMap's free [Nominatim](https://nominatim.org/) search, following its usage policy: at most 1 request per second, no search-as-you-type.
+  - Countries with far-flung parts (France's overseas territories, the USA's Alaska and Pacific islands) zoom to the main part around Nominatim's point for the place, not to a box spanning the globe.
 - **View**: clicking a pin opens a read-only popup with *Edit* and *Delete*.
 - **Edit**: the form opens in the sidebar. While editing, drag the pin to move it.
 - **Delete**: deletes immediately, with an *Undo* toast.

@@ -147,6 +147,8 @@ code {
   flex: 1;
   position: relative;
   min-width: 0;
+  /* Lets map overlays adapt to the map's width, not the window's. */
+  container: map / size;
 }
 
 .map {
@@ -311,11 +313,6 @@ code {
 
 /* ---- Search boxes -------------------------------------------------------- */
 
-.address-search {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-}
-
 .search-box {
   display: flex;
   align-items: center;
@@ -340,10 +337,6 @@ code {
   background: transparent;
   outline: none;
   height: 100%;
-}
-
-.address-search .search-box {
-  margin-bottom: 0;
 }
 
 .search-icon {
@@ -383,6 +376,10 @@ code {
 
 .search-result:hover {
   background: var(--surface-hover);
+}
+
+.search-results li.is-active .search-result {
+  background: var(--accent-soft);
 }
 
 .search-result-name {
@@ -775,6 +772,53 @@ code {
 
 /* ---- Map overlays -------------------------------------------------------- */
 
+/* Address search: right of Leaflet's zoom buttons, clear of the controls on the right. */
+.map-search {
+  position: absolute;
+  top: 10px;
+  left: 54px;
+  z-index: 810;
+  width: min(380px, calc(100% - 54px - 200px));
+}
+
+.map-search .search-box {
+  margin-bottom: 0;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.map-search-panel {
+  margin-top: 6px;
+  padding: 4px;
+  /* Stays above the middle of the map, where the result is shown. */
+  max-height: min(340px, calc(45cqh - 70px));
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.map-search-panel .search-results {
+  margin: 0;
+}
+
+.map-search-panel .search-status {
+  margin: 6px 8px;
+}
+
+/* Narrow map: the search gets the full top row; the controls move below it. */
+@container map (max-width: 640px) {
+  .map-search {
+    width: auto;
+    right: 10px;
+  }
+
+  .map-controls {
+    top: 56px;
+  }
+}
+
 .map-controls {
   position: absolute;
   top: 10px;
@@ -833,7 +877,7 @@ code {
 
 .map-banner {
   position: absolute;
-  top: 10px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 800;
@@ -891,6 +935,50 @@ code {
 
 /* ---- Pins and clusters --------------------------------------------------- */
 
+.search-hit {
+  background: none;
+  border: none;
+}
+
+.search-hit-ring,
+.search-hit-dot {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.search-hit-ring {
+  inset: 0;
+  border: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow: 0 0 0 2px white, 0 2px 6px rgb(0 0 0 / 0.35);
+  animation: search-hit-pulse 1.6s ease-out 2;
+}
+
+.search-hit-dot {
+  inset: 10px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px white;
+}
+
+@keyframes search-hit-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.leaflet-tooltip.search-hit-label {
+  font-weight: 600;
+  padding: 3px 8px;
+}
+
 .pin {
   background: none;
   border: none;
@@ -944,7 +1032,8 @@ code {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pin-editing::before {
+  .pin-editing::before,
+  .search-hit-ring {
     animation: none;
   }
 }
@@ -1175,12 +1264,19 @@ code {
   .map-banner {
     font-size: 13px;
   }
+
+  .app:has(.sidebar.is-collapsed) .map-banner {
+    bottom: 90px;
+  }
 }
 
 /* ---- Display mode: only the map and pins --------------------------------- */
 
 .app.is-display .sidebar,
 .app.is-display .map-controls,
+.app.is-display .map-search,
+.app.is-display .search-hit,
+.app.is-display .search-hit-label,
 .app.is-display .map-banner,
 .app.is-display .toast,
 .app.is-display .leaflet-control-zoom,

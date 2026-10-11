@@ -1,6 +1,6 @@
 import L from 'leaflet'
 import { useEffect, useImperativeHandle, useRef, type Ref } from 'react'
-import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents, type MarkerProps } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap, useMapEvents, type MarkerProps } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import { resolvePinStyle } from '../domain/style'
@@ -8,7 +8,7 @@ import type { Group, Place } from '../domain/types'
 import type { MapView as SavedView } from '../state/storage'
 import { PlacePopup } from '../ui/PlacePopup'
 import type { Basemap } from './basemaps'
-import { clusterIcon, pinIcon, type PinMarkerOptions } from './pinIcon'
+import { clusterIcon, pinIcon, searchHitIcon, type PinMarkerOptions } from './pinIcon'
 
 /** First-run view: the whole world. */
 const WORLD_CENTER: [number, number] = [20, 0]
@@ -25,6 +25,13 @@ export interface MapApi {
   reveal(lat: number, lng: number): void
 }
 
+/** Where an address search landed; marked on the map until the search is cleared. */
+export interface SearchHit {
+  lat: number
+  lng: number
+  label: string
+}
+
 interface MapViewProps {
   ref?: Ref<MapApi>
   basemap: Basemap
@@ -35,6 +42,7 @@ interface MapViewProps {
   groupsById: ReadonlyMap<string, Group>
   /** The place being edited (new or existing); shown as a draggable pin. */
   draft?: Place
+  searchHit?: SearchHit
   adding: boolean
   initialView?: SavedView
   onMapClick(lat: number, lng: number): void
@@ -51,6 +59,7 @@ export function MapView({
   places,
   groupsById,
   draft,
+  searchHit,
   adding,
   initialView,
   onMapClick,
@@ -101,11 +110,13 @@ export function MapView({
       showLocation(lat, lng, bounds) {
         const map = mapRef.current
         if (!map) return
+        // Leaflet scales flight time with distance; across the globe that's 10+ seconds.
+        const duration = 1.5
         if (bounds) {
           const [south, north, west, east] = bounds
-          map.flyToBounds([[south, west], [north, east]], { ...padding(), maxZoom: 15 })
+          map.flyToBounds([[south, west], [north, east]], { ...padding(), maxZoom: 15, duration })
         } else {
-          map.flyTo(centerFor(map, [lat, lng], 14), 14)
+          map.flyTo(centerFor(map, [lat, lng], 14), 14, { duration })
         }
       },
       reveal(lat, lng) {
@@ -182,6 +193,20 @@ export function MapView({
             )
           })}
       </MarkerClusterGroup>
+      {searchHit && (
+        <Marker
+          key={`${searchHit.lat},${searchHit.lng}`}
+          position={[searchHit.lat, searchHit.lng]}
+          icon={searchHitIcon}
+          interactive={false}
+          keyboard={false}
+          zIndexOffset={500}
+        >
+          <Tooltip permanent direction="right" offset={[12, 0]} className="search-hit-label">
+            {searchHit.label}
+          </Tooltip>
+        </Marker>
+      )}
       {draft && <DraftMarker draft={draft} group={groupsById.get(draft.groupId)} onMove={onDraftMove} />}
     </MapContainer>
   )

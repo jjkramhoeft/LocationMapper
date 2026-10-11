@@ -65,7 +65,7 @@ export function PlaceList({
         <div className="empty">
           <p>No places yet.</p>
           <p className="muted small">
-            Press <strong>Add</strong> and click the map, or search for an address above.
+            Press <strong>Add</strong> and click the map, or search for an address on the map.
           </p>
           <button type="button" className="btn btn-small" onClick={onLoadSample}>
             Load sample data
