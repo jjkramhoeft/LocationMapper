@@ -171,4 +171,16 @@ describe('sample data', () => {
     expect(result.warnings).toEqual([])
     expect(result.data.places.length).toBeGreaterThan(5)
   })
+
+  it('has places only in Job, Wish list and the extra Wonders group', () => {
+    const text = readFileSync(new URL('../../public/sample-data.json', import.meta.url), 'utf8')
+    const { data } = expectOk(parseMapDataJson(text))
+    const byGroup = (id: string) => data.places.filter((p) => p.groupId === id)
+    expect(data.groups.map((g) => g.id)).toContain('wonders')
+    expect(byGroup('wonders')).toHaveLength(7)
+    expect(byGroup('job')).toHaveLength(8)
+    expect(byGroup('wish-list')).toHaveLength(6)
+    expect(byGroup('wish-list').every((p) => p.imageUrl)).toBe(true)
+    expect(data.places).toHaveLength(7 + 8 + 6)
+  })
 })

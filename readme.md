@@ -139,12 +139,16 @@ IDs are UUIDs (starter groups use readable ids). Settings (background map, last 
 
 ### Sample data
 
-[public/sample-data.json](public/sample-data.json) holds 15 test places spread across all six groups, worldwide (Copenhagen to McMurdo Station). It covers:
-- date ranges, open-ended dates and undated places
-- notes with links
-- image URLs
+[public/sample-data.json](public/sample-data.json) holds 21 places in three groups:
+- **Wonders**: a group that only exists in the sample data. It has a pin for each of the Seven Wonders of the Ancient World.
+- **Job**: 8 big-name tech employers. Google and NVIDIA in California, Keen Technologies in Dallas, Black Forest Labs in Freiburg, TSMC and ASUS in Taiwan, Sakana AI and Nintendo in Japan. Pins for Keen, Black Forest Labs and Sakana AI mark the city, not an office.
+- **Wish list**: 6 natural sites, each with a photo. Plitvice Lakes, Iguazu Falls, Hạ Long Bay, Moraine Lake, Zhangjiajie and Torres del Paine.
+
+The other starter groups are included, but empty. It covers:
+- notes with links (Wikipedia or the company's site)
+- image URLs (Wikimedia Commons thumbnails), on the wonders and the wish list
 - color and icon overrides
-- a cluster of nearby pins in Denmark
+- clusters of nearby pins (California, Taiwan, the Aegean)
 
 Load it with **Load sample data**, either from the empty place list or from the import/export menu. It goes through the same check and confirmation as any import, and replaces your current data.
 
