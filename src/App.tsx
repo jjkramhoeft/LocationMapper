@@ -35,6 +35,7 @@ type Dialog =
   | { kind: 'confirmImport'; result: Extract<ImportResult, { ok: true }>; source: string }
   | { kind: 'importError'; message: string; source: string }
   | { kind: 'deleteGroup'; group: Group }
+  | { kind: 'deletePlacesInGroup'; group: Group }
   | { kind: 'settings' }
 
 const MAX_WARNINGS_SHOWN = 8
@@ -234,6 +235,17 @@ export function App() {
     showToast({ message: `Deleted group “${group.name}”` })
   }
 
+  /** Deletes the group's places but keeps the group, e.g. to clear out the sample data. */
+  function confirmDeletePlacesInGroup(group: Group) {
+    const removed = data.places.filter((p) => p.groupId === group.id)
+    dispatch({ type: 'deletePlacesInGroup', groupId: group.id })
+    setDialog(null)
+    showToast({
+      message: `Deleted ${count(removed.length, 'place')} from “${group.name}”`,
+      action: { label: 'Undo', run: () => dispatch({ type: 'restorePlaces', places: removed }) },
+    })
+  }
+
   function toggleGroup(id: string) {
     const hidden = new Set(settings.hiddenGroupIds)
     if (hidden.has(id)) hidden.delete(id)
@@ -397,6 +409,7 @@ export function App() {
               onSave={saveGroup}
               onCancel={() => setPanel({ kind: 'browse' })}
               onDelete={() => setDialog({ kind: 'deleteGroup', group: panel.group })}
+              onDeletePlaces={() => setDialog({ kind: 'deletePlacesInGroup', group: panel.group })}
             />
           ) : (
             <>
@@ -545,6 +558,28 @@ export function App() {
           onConfirm={(moveTo) => confirmDeleteGroup(dialog.group, moveTo)}
           onClose={() => setDialog(null)}
         />
+      )}
+
+      {dialog?.kind === 'deletePlacesInGroup' && (
+        <Modal
+          title={`Delete all places in “${dialog.group.name}”?`}
+          onClose={() => setDialog(null)}
+          actions={
+            <>
+              <span className="spacer" />
+              <button type="button" className="btn" onClick={() => setDialog(null)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-danger" onClick={() => confirmDeletePlacesInGroup(dialog.group)}>
+                Delete {count(counts.get(dialog.group.id) ?? 0, 'place')}
+              </button>
+            </>
+          }
+        >
+          <p>
+            This deletes the {count(counts.get(dialog.group.id) ?? 0, 'place')} in this group. The group itself stays.
+          </p>
+        </Modal>
       )}
 
       {dialog?.kind === 'settings' && (

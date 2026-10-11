@@ -54,6 +54,7 @@ Hosted on GitHub Pages at <https://jjkramhoeft.github.io/LocationMapper/> from [
 
 - **Other** is the fallback group: it can be renamed but not deleted.
 - Deleting a group that still has places asks where to move them (default: Other). Places are never silently deleted with their group.
+- **Delete all places** (in *Edit group*) deletes every place in that group but keeps the group, e.g. to clear out the sample data. It asks first, and the toast offers *Undo*.
 
 ## Places
 

@@ -1,4 +1,4 @@
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { ArrowLeft, ListX, Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { canDeleteGroup } from '../domain/groups'
 import type { Group } from '../domain/types'
@@ -12,9 +12,11 @@ interface GroupFormProps {
   onSave(group: Group): void
   onCancel(): void
   onDelete(): void
+  /** Deletes the group's places, keeping the group. */
+  onDeletePlaces(): void
 }
 
-export function GroupForm({ group, isNew, placeCount, onSave, onCancel, onDelete }: GroupFormProps) {
+export function GroupForm({ group, isNew, placeCount, onSave, onCancel, onDelete, onDeletePlaces }: GroupFormProps) {
   const [draft, setDraft] = useState(group)
   const [submitted, setSubmitted] = useState(false)
   const nameError = submitted && !draft.name.trim() ? 'A name is required' : undefined
@@ -55,6 +57,14 @@ export function GroupForm({ group, isNew, placeCount, onSave, onCancel, onDelete
         <p className="muted small">
           {placeCount === 1 ? '1 place' : `${placeCount} places`} in this group. Places can override the color and icon.
         </p>
+      )}
+
+      {!isNew && placeCount > 0 && (
+        <div>
+          <button type="button" className="btn btn-small btn-danger-ghost" onClick={onDeletePlaces}>
+            <ListX size={16} /> Delete all {placeCount === 1 ? '1 place' : `${placeCount} places`}
+          </button>
+        </div>
       )}
 
       <div className="form-actions">

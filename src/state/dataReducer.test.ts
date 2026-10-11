@@ -29,6 +29,20 @@ describe('dataReducer', () => {
     expect(dataReducer(state, { type: 'restorePlace', place: place('a'), index: 0 })).toBe(state)
   })
 
+  it('deletes all places in a group, keeping the group and other places', () => {
+    const other = { ...place('b'), groupId: 'job' }
+    const state = dataReducer(withPlaces(place('a'), other, place('c')), { type: 'deletePlacesInGroup', groupId: 'lived' })
+    expect(state.places).toEqual([other])
+    expect(state.groups.some((g) => g.id === 'lived')).toBe(true)
+  })
+
+  it('restores deleted places once', () => {
+    const state = withPlaces(place('a'))
+    const restored = dataReducer(state, { type: 'restorePlaces', places: [place('a'), place('b')] })
+    expect(restored.places.map((p) => p.id)).toEqual(['a', 'b'])
+    expect(dataReducer(restored, { type: 'restorePlaces', places: [place('b')] })).toBe(restored)
+  })
+
   it('deletes a group by moving its places', () => {
     const state = dataReducer(withPlaces(place('a')), { type: 'deleteGroup', id: 'lived', moveToGroupId: 'other' })
     expect(state.places[0]!.groupId).toBe('other')
