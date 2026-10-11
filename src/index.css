@@ -1108,6 +1108,11 @@ code {
   background: var(--surface);
 }
 
+/* Upright pictures (statues, towers, people) keep their top in the crop, not the middle. */
+.popup-image.is-portrait {
+  object-position: center 15%;
+}
+
 .popup-title {
   font-size: 15px;
   font-weight: 650;

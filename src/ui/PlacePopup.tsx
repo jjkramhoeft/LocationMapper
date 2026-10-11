@@ -1,5 +1,5 @@
 import { Pencil, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { formatDateRange } from '../domain/partialDate'
 import { resolvePinStyle } from '../domain/style'
 import type { Group, Place } from '../domain/types'
@@ -11,16 +11,28 @@ interface PlacePopupProps {
   group?: Group
   onEdit(): void
   onDelete(): void
+  /** Called once the content is in the popup, so the map can size the popup to fit. */
+  onShown?(): void
 }
 
-export function PlacePopup({ place, group, onEdit, onDelete }: PlacePopupProps) {
+export function PlacePopup({ place, group, onEdit, onDelete, onShown }: PlacePopupProps) {
   const [imageFailed, setImageFailed] = useState(false)
+  const [imagePortrait, setImagePortrait] = useState(false)
+  // Content mounts each time the popup opens; only the first layout matters.
+  useLayoutEffect(() => onShown?.(), [])
   const style = resolvePinStyle(place, group)
   const dates = formatDateRange(place.dateFrom, place.dateTo)
   return (
     <div className="popup">
       {place.imageUrl && !imageFailed && (
-        <img className="popup-image" src={place.imageUrl} alt="" loading="lazy" onError={() => setImageFailed(true)} />
+        <img
+          className={imagePortrait ? 'popup-image is-portrait' : 'popup-image'}
+          src={place.imageUrl}
+          alt=""
+          loading="lazy"
+          onLoad={(e) => setImagePortrait(e.currentTarget.naturalHeight > e.currentTarget.naturalWidth)}
+          onError={() => setImageFailed(true)}
+        />
       )}
       <h3 className="popup-title">{place.title}</h3>
       <div className="popup-meta">

@@ -80,7 +80,8 @@ A place (a location on the map) has:
 - **Go to** (search box on the map, top left): type an address, city, landmark or country and press Enter. The map zooms and pans to the best match and marks it with a labelled ring. Other matches are listed below the box; pick one to go there instead, or press the pin-plus button next to a match to add a place there. Esc closes the list, a second Esc clears the search and the marker. On a phone the bottom sheet collapses so the result is visible.
   - Uses OpenStreetMap's free [Nominatim](https://nominatim.org/) search, following its usage policy: at most 1 request per second, no search-as-you-type.
   - Countries with far-flung parts (France's overseas territories, the USA's Alaska and Pacific islands) zoom to the main part around Nominatim's point for the place, not to a box spanning the globe.
-- **View**: clicking a pin opens a read-only popup with *Edit* and *Delete*.
+- **View**: clicking a pin pans it to the center of the map, then opens a read-only popup with *Edit* and *Delete*. The map doesn't move again after that: if the popup is taller than the room above the pin, its content scrolls. Click the pin again to close it. When you pan the map, an open popup closes once it reaches the edge of the map instead of sliding out of view.
+- Popup images are cropped to a fixed height: landscape pictures around the middle, portrait pictures near the top so statues and towers keep their heads.
 - **Edit**: the form opens in the sidebar. While editing, drag the pin to move it.
 - **Delete**: deletes immediately, with an *Undo* toast.
 
@@ -139,12 +140,18 @@ IDs are UUIDs (starter groups use readable ids). Settings (background map, last 
 
 ### Sample data
 
-[public/sample-data.json](public/sample-data.json) holds 21 places in three groups:
+[public/sample-data.json](public/sample-data.json) holds 33 places in three groups:
 - **Wonders**: a group that only exists in the sample data. It has a pin for each of the Seven Wonders of the Ancient World.
-- **Job**: 8 big-name tech employers. Google and NVIDIA in California, Keen Technologies in Dallas, Black Forest Labs in Freiburg, TSMC and ASUS in Taiwan, Sakana AI and Nintendo in Japan. Pins for Keen, Black Forest Labs and Sakana AI mark the city, not an office.
-- **Wish list**: 6 natural sites, each with a photo. Plitvice Lakes, Iguazu Falls, Hạ Long Bay, Moraine Lake, Zhangjiajie and Torres del Paine.
+- **Job**: 9 tech and AI employers. Google and NVIDIA in California, Keen Technologies in Dallas, Black Forest Labs in Freiburg, the Pioneer Centre for AI in Copenhagen, TSMC and ASUS in Taiwan, Sakana AI and Nintendo in Japan. Pins for Keen, Black Forest Labs and Sakana AI mark the city, not an office.
+- **Wish list**: 17 natural sites, each with a photo:
+  - Africa: Victoria Falls, Sossusvlei, Mount Kilimanjaro
+  - Europe: Plitvice Lakes, Lofoten, Tre Cime di Lavaredo, Cliffs of Moher
+  - Middle East and Turkey: Makhtesh Ramon (Israel), the Lut Desert (Iran), Pamukkale
+  - Asia: Hạ Long Bay, Zhangjiajie
+  - The Americas and Greenland: Iguazu Falls, Moraine Lake, Torres del Paine, Ilulissat Icefjord
+  - Australia: Uluru
 
-The other starter groups are included, but empty. It covers:
+Loading it leaves only these groups and **Other** (the fallback group, which always exists). The empty starter groups are gone; add them back with *+* under Groups if you want them. It covers:
 - notes with links (Wikipedia or the company's site)
 - image URLs (Wikimedia Commons thumbnails), on the wonders and the wish list
 - color and icon overrides

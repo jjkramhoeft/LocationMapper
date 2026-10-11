@@ -1,5 +1,5 @@
 import L from 'leaflet'
-import { useEffect, useImperativeHandle, useRef, type Ref } from 'react'
+import { useCallback, useEffect, useImperativeHandle, useRef, type Ref } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap, useMapEvents, type MarkerProps } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
@@ -13,6 +13,21 @@ import { clusterIcon, pinIcon, searchHitIcon, type PinMarkerOptions } from './pi
 /** First-run view: the whole world. */
 const WORLD_CENTER: [number, number] = [20, 0]
 const WORLD_ZOOM = 2
+
+/** Space kept between an opened popup and the top of the map; more than PopupEdgeCloser's margin. */
+const POPUP_MARGIN = 16
+/** A popup is never squeezed below this height (px) to fit; it scrolls instead. */
+const MIN_POPUP_HEIGHT = 120
+
+/** Map center that puts `latlng` in the middle of the area not covered by the bottom sheet (`inset`). */
+function centerFor(map: L.Map, latlng: L.LatLngExpression, zoom: number, inset: number): L.LatLng {
+  return map.unproject(map.project(latlng, zoom).add([0, inset / 2]), zoom)
+}
+
+/** Leaflet's (private) handler that opens a bound popup on click or Enter. */
+interface PopupHandler {
+  _openPopup(e: L.LeafletEvent): void
+}
 
 export interface MapApi {
   /** Zooms to a place (uncluttering its cluster) and opens its popup. */
@@ -76,16 +91,51 @@ export function MapView({
   placesRef.current = places
   const insetRef = useRef(bottomInset)
   insetRef.current = bottomInset
+  /** The marker whose popup opens once the current pan ends. */
+  const pendingOpen = useRef<L.Marker | null>(null)
+
+  /** Pans the marker to the center of the map, then opens its popup. */
+  const centerThenOpen = useCallback((marker: L.Marker) => {
+    const map = mapRef.current
+    if (!map) return
+    map.closePopup()
+    pendingOpen.current = marker
+    const open = () => {
+      if (pendingOpen.current !== marker) return
+      pendingOpen.current = null
+      marker.openPopup()
+    }
+    const target = centerFor(map, marker.getLatLng(), map.getZoom(), insetRef.current)
+    if (map.latLngToContainerPoint(target).distanceTo(map.getSize().divideBy(2)) < 2) {
+      open()
+    } else {
+      map.once('moveend', open)
+      map.panTo(target, { duration: 0.35 })
+    }
+  }, [])
+
+  /**
+   * Fits an opened popup into the room above its pin by letting its content scroll, instead of
+   * Leaflet's auto-pan moving the map again after the pin was centered.
+   */
+  const fitPopup = useCallback((popup: L.Popup | undefined) => {
+    const map = mapRef.current
+    const element = popup?.getElement()
+    const content = element?.querySelector<HTMLElement>('.leaflet-popup-content')
+    if (!map || !popup || !element || !content) return
+    popup.options.maxHeight = undefined
+    popup.update()
+    const overflow = map.getContainer().getBoundingClientRect().top + POPUP_MARGIN - element.getBoundingClientRect().top
+    if (overflow <= 0) return
+    popup.options.maxHeight = Math.max(MIN_POPUP_HEIGHT, content.offsetHeight - overflow)
+    popup.update()
+  }, [])
 
   useImperativeHandle(ref, () => {
     const padding = (): L.FitBoundsOptions => ({
       paddingTopLeft: [48, 48],
       paddingBottomRight: [48, 48 + insetRef.current],
     })
-    /** Map center that puts `latlng` in the middle of the uncovered area. */
-    const centerFor = (map: L.Map, latlng: L.LatLngExpression, zoom: number) =>
-      map.unproject(map.project(latlng, zoom).add([0, insetRef.current / 2]), zoom)
-
     return {
       focusPlace(id) {
         const map = mapRef.current
@@ -98,7 +148,7 @@ export function MapView({
         map.closePopup()
         map.once('moveend', reveal)
         const zoom = Math.max(map.getZoom(), 10)
-        map.flyTo(centerFor(map, marker.getLatLng(), zoom), zoom, { duration: 0.8 })
+        map.flyTo(centerFor(map, marker.getLatLng(), zoom, insetRef.current), zoom, { duration: 0.8 })
       },
       fitAll() {
         const map = mapRef.current
@@ -116,7 +166,7 @@ export function MapView({
           const [south, north, west, east] = bounds
           map.flyToBounds([[south, west], [north, east]], { ...padding(), maxZoom: 15, duration })
         } else {
-          map.flyTo(centerFor(map, [lat, lng], 14), 14, { duration })
+          map.flyTo(centerFor(map, [lat, lng], 14, insetRef.current), 14, { duration })
         }
       },
       reveal(lat, lng) {
@@ -125,7 +175,7 @@ export function MapView({
         const size = map.getSize()
         const point = map.latLngToContainerPoint([lat, lng])
         const visible = point.x > 24 && point.x < size.x - 24 && point.y > 48 && point.y < size.y - insetRef.current - 24
-        if (!visible) map.panTo(centerFor(map, [lat, lng], map.getZoom()))
+        if (!visible) map.panTo(centerFor(map, [lat, lng], map.getZoom(), insetRef.current))
       },
     }
   }, [])
@@ -149,6 +199,7 @@ export function MapView({
       />
       <MapEvents adding={adding} onMapClick={onMapClick} onViewChange={onViewChange} />
       <ResizeWatcher />
+      <PopupEdgeCloser bottomInset={bottomInset} />
       <MarkerClusterGroup
         ref={clusterRef}
         iconCreateFunction={clusterIcon}
@@ -171,14 +222,27 @@ export function MapView({
                 title={place.title}
                 {...(options as Partial<MarkerProps>)}
                 ref={(marker) => {
-                  if (marker) markers.current.set(place.id, marker)
-                  else markers.current.delete(place.id)
+                  if (!marker) {
+                    markers.current.delete(place.id)
+                    return
+                  }
+                  markers.current.set(place.id, marker)
+                  // Replace Leaflet's open-on-click before <Popup> binds it (refs attach before effects),
+                  // so a click centers the pin first. Same toggle as Leaflet: a second click closes.
+                  if (!Object.hasOwn(marker, '_openPopup')) {
+                    ;(marker as unknown as PopupHandler)._openPopup = (e) => {
+                      L.DomEvent.stop(e as unknown as Event) // Don't let the click reach the map (Add mode).
+                      if (marker.isPopupOpen()) marker.closePopup()
+                      else centerThenOpen(marker)
+                    }
+                  }
                 }}
               >
-                <Popup minWidth={220} maxWidth={300}>
+                <Popup minWidth={220} maxWidth={300} autoPan={false}>
                   <PlacePopup
                     place={place}
                     group={group}
+                    onShown={() => fitPopup(markers.current.get(place.id)?.getPopup())}
                     onEdit={() => {
                       mapRef.current?.closePopup()
                       onEdit(place.id)
@@ -229,6 +293,46 @@ function DraftMarker({ draft, group, onMove }: { draft: Place; group?: Group; on
       }}
     />
   )
+}
+
+/** How close (px) an open popup may come to the map's edge while panning before it closes. */
+const EDGE_MARGIN = 8
+
+/**
+ * While the map is panned, closes the open popup once it reaches the edge of the map, instead of
+ * letting it slide out of view. A popup that doesn't fit when opened is left alone until it has fit.
+ */
+function PopupEdgeCloser({ bottomInset }: { bottomInset: number }) {
+  const insetRef = useRef(bottomInset)
+  insetRef.current = bottomInset
+  const popupRef = useRef<L.Popup | null>(null)
+  const hasFit = useRef(false)
+
+  const check = () => {
+    const box = popupRef.current?.getElement()?.getBoundingClientRect()
+    if (!box) return
+    const frame = map.getContainer().getBoundingClientRect()
+    const inside =
+      box.left >= frame.left + EDGE_MARGIN &&
+      box.right <= frame.right - EDGE_MARGIN &&
+      box.top >= frame.top + EDGE_MARGIN &&
+      box.bottom <= frame.bottom - insetRef.current - EDGE_MARGIN
+    if (inside) hasFit.current = true
+    else if (hasFit.current) map.closePopup()
+  }
+
+  const map = useMapEvents({
+    popupopen(e) {
+      popupRef.current = e.popup
+      hasFit.current = false
+    },
+    popupclose(e) {
+      if (popupRef.current === e.popup) popupRef.current = null
+    },
+    move: check,
+    moveend: check,
+  })
+  return null
 }
 
 /**

@@ -1,10 +1,7 @@
 {
   "version": 1,
   "groups": [
-    { "id": "lived", "name": "Lived", "color": "#2563eb", "icon": "house" },
-    { "id": "vacations", "name": "Vacations", "color": "#ea580c", "icon": "plane" },
     { "id": "job", "name": "Job", "color": "#475569", "icon": "briefcase" },
-    { "id": "friends", "name": "Friends", "color": "#16a34a", "icon": "users" },
     { "id": "wish-list", "name": "Wish list", "color": "#9333ea", "icon": "star" },
     { "id": "wonders", "name": "Wonders", "color": "#ca8a04", "icon": "landmark" },
     { "id": "other", "name": "Other", "color": "#6b7280", "icon": "map-pin" }
@@ -159,6 +156,15 @@
       "note": "Nintendo's headquarters in southern Kyoto.\nhttps://www.nintendo.co.jp"
     },
     {
+      "id": "sample-pioneer-centre",
+      "groupId": "job",
+      "title": "Pioneer Center for AI",
+      "lat": 55.6868,
+      "lng": 12.5759,
+      "address": "Øster Voldgade 3, 1350 København, Denmark",
+      "note": "Pioneer Centre for Artificial Intelligence: interdisciplinary, fundamental AI research, co-financed by the Danish ministry, the universities and five private foundations.\nhttps://www.aicentre.dk"
+    },
+    {
       "id": "sample-plitvice",
       "groupId": "wish-list",
       "title": "Plitvice Lakes",
@@ -223,6 +229,127 @@
       "note": "Three granite towers in Patagonia. The viewpoint at their base is a long day hike.\nhttps://en.wikipedia.org/wiki/Torres_del_Paine_National_Park",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Torres_del_Paine_y_cuernos_del_Paine%2C_montaje.jpg/500px-Torres_del_Paine_y_cuernos_del_Paine%2C_montaje.jpg",
       "icon": "mountain"
+    },
+    {
+      "id": "sample-victoria-falls",
+      "groupId": "wish-list",
+      "title": "Victoria Falls",
+      "lat": -17.9244,
+      "lng": 25.8567,
+      "address": "Victoria Falls, Zambia / Zimbabwe",
+      "note": "The Zambezi drops over a 1.7 km wide edge between Zambia and Zimbabwe. Locally called Mosi-oa-Tunya, “the smoke that thunders”.\nhttps://en.wikipedia.org/wiki/Victoria_Falls",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Cataratas_Victoria%2C_Zambia-Zimbabue%2C_2018-07-27%2C_DD_04.jpg/500px-Cataratas_Victoria%2C_Zambia-Zimbabue%2C_2018-07-27%2C_DD_04.jpg",
+      "icon": "waves"
+    },
+    {
+      "id": "sample-sossusvlei",
+      "groupId": "wish-list",
+      "title": "Sossusvlei",
+      "lat": -24.7398,
+      "lng": 15.2877,
+      "address": "Namib-Naukluft National Park, Namibia",
+      "note": "A white salt and clay pan ringed by some of the highest red dunes in the world, in the Namib Desert.\nhttps://en.wikipedia.org/wiki/Sossusvlei",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Sossusvlei.jpg/500px-Sossusvlei.jpg",
+      "icon": "sun"
+    },
+    {
+      "id": "sample-kilimanjaro",
+      "groupId": "wish-list",
+      "title": "Mount Kilimanjaro",
+      "lat": -3.0764,
+      "lng": 37.354,
+      "address": "Kilimanjaro National Park, Tanzania",
+      "note": "Africa's highest mountain, 5,895 m: a snow-capped volcano rising alone above the savanna. The pin marks Uhuru Peak, the summit.\nhttps://en.wikipedia.org/wiki/Mount_Kilimanjaro",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Kilimanjaro_from_Amboseli.jpg/500px-Kilimanjaro_from_Amboseli.jpg",
+      "icon": "mountain-snow"
+    },
+    {
+      "id": "sample-makhtesh-ramon",
+      "groupId": "wish-list",
+      "title": "Makhtesh Ramon",
+      "lat": 30.5786,
+      "lng": 34.8178,
+      "address": "Mitzpe Ramon, Negev, Israel",
+      "note": "A 40 km long erosion crater in the Negev desert, the largest of its kind in the world.\nhttps://en.wikipedia.org/wiki/Makhtesh_Ramon",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/MakhteshRamonMar262022_01.jpg/500px-MakhteshRamonMar262022_01.jpg",
+      "icon": "mountain"
+    },
+    {
+      "id": "sample-lut-desert",
+      "groupId": "wish-list",
+      "title": "Lut Desert",
+      "lat": 30.605,
+      "lng": 59.0678,
+      "address": "Kerman Province, Iran",
+      "note": "One of the hottest places on Earth, with long wind-carved ridges called kaluts. A UNESCO World Heritage Site.\nhttps://en.wikipedia.org/wiki/Lut_Desert",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Dasht-e_Lut_Desert_in_Kerman_Province_02.jpg/500px-Dasht-e_Lut_Desert_in_Kerman_Province_02.jpg",
+      "icon": "sun"
+    },
+    {
+      "id": "sample-pamukkale",
+      "groupId": "wish-list",
+      "title": "Pamukkale",
+      "lat": 37.9239,
+      "lng": 29.1233,
+      "address": "Denizli, Turkey",
+      "note": "White travertine terraces filled with warm spring water, right above the ruins of ancient Hierapolis.\nhttps://en.wikipedia.org/wiki/Pamukkale",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Pamukkale%2C_Denizli_2026_68.jpg/500px-Pamukkale%2C_Denizli_2026_68.jpg",
+      "icon": "waves"
+    },
+    {
+      "id": "sample-ilulissat",
+      "groupId": "wish-list",
+      "title": "Ilulissat Icefjord",
+      "lat": 69.2007,
+      "lng": -51.1259,
+      "address": "Ilulissat, Greenland",
+      "note": "Sermeq Kujalleq, one of the fastest-moving glaciers in the world, fills this UNESCO-listed fjord with icebergs. The pin marks the viewpoint near town.\nhttps://en.wikipedia.org/wiki/Ilulissat_Icefjord",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Ilulissat_Icefjord.jpg/500px-Ilulissat_Icefjord.jpg",
+      "icon": "mountain-snow"
+    },
+    {
+      "id": "sample-lofoten",
+      "groupId": "wish-list",
+      "title": "Lofoten",
+      "lat": 67.9325,
+      "lng": 13.0888,
+      "address": "Reine, Lofoten, Norway",
+      "note": "Steep peaks straight out of the sea, red fishing cabins and the midnight sun. The photo is the view from Reinebringen above Reine.\nhttps://en.wikipedia.org/wiki/Lofoten",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Moskenes_Reinebringen_lub_2025-07-21_img09_Aussicht.jpg/500px-Moskenes_Reinebringen_lub_2025-07-21_img09_Aussicht.jpg",
+      "icon": "mountain"
+    },
+    {
+      "id": "sample-tre-cime",
+      "groupId": "wish-list",
+      "title": "Tre Cime di Lavaredo",
+      "lat": 46.6187,
+      "lng": 12.3022,
+      "address": "Dolomites, Italy",
+      "note": "Three limestone peaks in the Dolomites, best seen from the loop trail around them.\nhttps://en.wikipedia.org/wiki/Tre_Cime_di_Lavaredo",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/2019_Tre_Cime.jpg/500px-2019_Tre_Cime.jpg",
+      "icon": "mountain"
+    },
+    {
+      "id": "sample-cliffs-of-moher",
+      "groupId": "wish-list",
+      "title": "Cliffs of Moher",
+      "lat": 52.9718,
+      "lng": -9.4263,
+      "address": "County Clare, Ireland",
+      "note": "Sea cliffs rising over 200 m straight out of the Atlantic on Ireland's west coast.\nhttps://en.wikipedia.org/wiki/Cliffs_of_Moher",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cliffs-Of-Moher-OBriens-From-South.JPG/500px-Cliffs-Of-Moher-OBriens-From-South.JPG",
+      "icon": "waves"
+    },
+    {
+      "id": "sample-uluru",
+      "groupId": "wish-list",
+      "title": "Uluru",
+      "lat": -25.345,
+      "lng": 131.0361,
+      "address": "Uluṟu-Kata Tjuṯa National Park, Northern Territory, Australia",
+      "note": "A huge sandstone monolith in the red centre of Australia, sacred to the Aṉangu people. It glows red at sunset.\nhttps://en.wikipedia.org/wiki/Uluru",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/ULURU.jpg/500px-ULURU.jpg",
+      "icon": "sun"
     }
   ]
 }
