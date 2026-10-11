@@ -1,6 +1,6 @@
 import L from 'leaflet'
-import { useImperativeHandle, useRef, type Ref } from 'react'
-import { MapContainer, Marker, Popup, TileLayer, useMapEvents, type MarkerProps } from 'react-leaflet'
+import { useEffect, useImperativeHandle, useRef, type Ref } from 'react'
+import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents, type MarkerProps } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import { resolvePinStyle } from '../domain/style'
@@ -137,6 +137,7 @@ export function MapView({
         {...(basemap.subdomains ? { subdomains: basemap.subdomains } : {})}
       />
       <MapEvents adding={adding} onMapClick={onMapClick} onViewChange={onViewChange} />
+      <ResizeWatcher />
       <MarkerClusterGroup
         ref={clusterRef}
         iconCreateFunction={clusterIcon}
@@ -203,6 +204,20 @@ function DraftMarker({ draft, group, onMove }: { draft: Place; group?: Group; on
       }}
     />
   )
+}
+
+/**
+ * Leaflet only reacts to window resizes; this also catches layout changes such as the
+ * sidebar being hidden in display mode.
+ */
+function ResizeWatcher() {
+  const map = useMap()
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize())
+    observer.observe(map.getContainer())
+    return () => observer.disconnect()
+  }, [map])
+  return null
 }
 
 function MapEvents({

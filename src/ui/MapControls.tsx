@@ -1,4 +1,4 @@
-import { Layers, Maximize } from 'lucide-react'
+import { Layers, Maximize, Presentation } from 'lucide-react'
 import { BASEMAPS, GOOGLE_BASEMAPS } from '../map/basemaps'
 
 interface MapControlsProps {
@@ -8,9 +8,17 @@ interface MapControlsProps {
   basemapNotice?: string
   onBasemapChange(id: string): void
   onFitAll(): void
+  onDisplayMode(): void
 }
 
-export function MapControls({ basemapId, showGoogle, basemapNotice, onBasemapChange, onFitAll }: MapControlsProps) {
+export function MapControls({
+  basemapId,
+  showGoogle,
+  basemapNotice,
+  onBasemapChange,
+  onFitAll,
+  onDisplayMode,
+}: MapControlsProps) {
   return (
     <div className="map-controls">
       <label className="map-control basemap-select" title="Background map">
@@ -32,6 +40,14 @@ export function MapControls({ basemapId, showGoogle, basemapNotice, onBasemapCha
       {basemapNotice && <div className="map-control map-notice">{basemapNotice}</div>}
       <button type="button" className="map-control map-button" onClick={onFitAll} title="Zoom to all visible places">
         <Maximize size={16} aria-hidden="true" /> Fit all
+      </button>
+      <button
+        type="button"
+        className="map-control map-button"
+        onClick={onDisplayMode}
+        title="Hide everything except the map and pins (Esc to leave)"
+      >
+        <Presentation size={16} aria-hidden="true" /> Display
       </button>
     </div>
   )

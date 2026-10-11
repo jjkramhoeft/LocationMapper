@@ -81,6 +81,15 @@ A place (a location on the map) has:
 - **Edit**: the form opens in the sidebar. While editing, drag the pin to move it.
 - **Delete**: deletes immediately, with an *Undo* toast.
 
+### Display mode
+
+For showing the map on a screen: **Display** (top right, under Fit all) hides everything except the map and pins.
+- Hidden: the sidebar, the map controls, the zoom buttons, toasts, and the Edit/Delete buttons in popups. The tile attribution stays, dimmed, because the map providers require it.
+- The browser goes fullscreen where it allows it.
+- Leave with **Esc**, by leaving fullscreen, or with the *Exit display* button. That button appears when the mouse moves and fades out, with the cursor, after a few seconds idle.
+- Hidden groups stay hidden, so choose what to show before entering.
+- Open the app with `?display` (e.g. `https://jjkramhoeft.github.io/LocationMapper/?display`) to start straight in display mode, e.g. from a bookmark on a wall screen. Fullscreen needs a click there, because browsers only allow it after user input.
+
 ### Sidebar
 
 - Searchable list of places. Search matches title, address and note. Clicking an entry zooms to the pin.

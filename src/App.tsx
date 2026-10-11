@@ -14,6 +14,7 @@ import { dataReducer } from './state/dataReducer'
 import { loadData, loadSettings, saveData, saveSettings, type Settings } from './state/storage'
 import { AddressSearch } from './ui/AddressSearch'
 import { DataMenu } from './ui/DataMenu'
+import { DisplayExit } from './ui/DisplayExit'
 import { GroupForm } from './ui/GroupForm'
 import { GroupList } from './ui/GroupList'
 import { IconSprite } from './ui/IconSprite'
@@ -75,6 +76,8 @@ export function App() {
   const [toast, setToast] = useState<ToastState | null>(null)
   const [query, setQuery] = useState('')
   const [sheetOpen, setSheetOpen] = useState(true)
+  // `?display` in the URL starts in display mode, e.g. for a bookmarked wall display.
+  const [displayMode, setDisplayMode] = useState(() => new URLSearchParams(window.location.search).has('display'))
   const mapApi = useRef<MapApi>(null)
   const isPhone = useMediaQuery(PHONE_QUERY)
   const sidebarRef = useRef<HTMLElement>(null)
@@ -266,6 +269,41 @@ export function App() {
     fitAll()
   }
 
+  // --- Display mode ----------------------------------------------------------------
+  /** Hides everything but the map and pins, and goes fullscreen where the browser allows it. */
+  function enterDisplayMode() {
+    setPanel({ kind: 'browse' })
+    setDialog(null)
+    setToast(null)
+    setDisplayMode(true)
+    document.documentElement.requestFullscreen?.().catch(() => {
+      // Not allowed or not supported: display mode still works in the window.
+    })
+  }
+
+  const exitDisplayMode = useCallback(() => {
+    setDisplayMode(false)
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
+    const url = new URL(window.location.href)
+    if (url.searchParams.has('display')) {
+      url.searchParams.delete('display')
+      window.history.replaceState(null, '', url)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!displayMode) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && exitDisplayMode()
+    // In fullscreen the browser handles Esc itself and only reports leaving fullscreen.
+    const onFullscreenChange = () => !document.fullscreenElement && exitDisplayMode()
+    window.addEventListener('keydown', onKey)
+    document.addEventListener('fullscreenchange', onFullscreenChange)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.removeEventListener('fullscreenchange', onFullscreenChange)
+    }
+  }, [displayMode, exitDisplayMode])
+
   // --- Keyboard -------------------------------------------------------------------
   useEffect(() => {
     if (panel.kind !== 'adding') return
@@ -278,7 +316,7 @@ export function App() {
   const adding = panel.kind === 'adding'
 
   return (
-    <div className="app">
+    <div className={displayMode ? 'app is-display' : 'app'}>
       <IconSprite />
       <aside ref={sidebarRef} className={sheetOpen ? 'sidebar' : 'sidebar is-collapsed'}>
         <header className="sidebar-header">
@@ -392,7 +430,7 @@ export function App() {
         <MapView
           ref={mapApi}
           basemap={basemap}
-          bottomInset={isPhone ? sheetHeight : 0}
+          bottomInset={isPhone && !displayMode ? sheetHeight : 0}
           places={mapPlaces}
           groupsById={groupsById}
           draft={draft}
@@ -410,6 +448,7 @@ export function App() {
           basemapNotice={basemapNotice}
           onBasemapChange={(basemapId) => updateSettings({ basemapId })}
           onFitAll={fitAll}
+          onDisplayMode={enterDisplayMode}
         />
         {adding && (
           <div className="map-banner" role="status">
@@ -420,6 +459,7 @@ export function App() {
           </div>
         )}
         {toast && <Toast toast={toast} onDismiss={dismissToast} />}
+        {displayMode && <DisplayExit onExit={exitDisplayMode} />}
       </main>
 
       {dialog?.kind === 'confirmImport' && (
