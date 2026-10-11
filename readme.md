@@ -1,0 +1,160 @@
+# Location Tracker Map
+
+A personal map of the places you care about: where you've lived, vacations, jobs, friends, places you want to go. Single user, no accounts, no server. It does **not** track your live GPS position; "tracker" means keeping track of places.
+
+## Running it
+
+```bash
+npm install
+npm run dev        # dev server on http://localhost:5173
+npm test           # unit tests (Vitest)
+npm run build      # typecheck + production build to dist/
+```
+
+Stack: Vite, React, TypeScript, Leaflet via react-leaflet, Lucide icons, Vitest.
+
+## Deploying
+
+Hosted on GitHub Pages at <https://jjkramhoeft.github.io/LocationMapper/> from [jjkramhoeft/LocationMapper](https://github.com/jjkramhoeft/LocationMapper).
+
+- Every push to `main` runs [.github/workflows/deploy.yml](.github/workflows/deploy.yml), which runs tests, builds, and publishes `dist/`.
+- One-time setup: in the repo, go to **Settings → Pages → Source** and choose **GitHub Actions**.
+- The build uses relative paths (`base: './'`), so the repo name isn't hardcoded. The app has no client-side routes. If a router is ever added, use hash routing, because Pages has no SPA fallback.
+- Everything runs in the browser. Your data never reaches GitHub.
+
+## Map
+
+- Flat Leaflet map (Web Mercator) of the whole world; panning wraps around horizontally. No 3D globe.
+- Selectable background map, all free and keyless:
+  - OpenStreetMap
+  - CARTO light / CARTO dark
+  - Satellite (Esri World Imagery)
+  - OpenTopoMap
+- **Google** is an optional extra layer, enabled only when you paste your own API key into settings. Google requires a billing-enabled key, and its terms only allow its tiles through its own APIs (Map Tiles API or Maps JS). The key is stored in browser storage only, never in source or in exported JSON. Other pages on the same `github.io` origin can read that storage, so restrict the key in Google Cloud to the Pages URL and to the Maps APIs.
+- Remembers the last view (center/zoom) and background map per device. First run shows the whole world.
+- **Fit all** button zooms to all visible pins.
+- Pins cluster when crowded.
+
+## Groups
+
+- User-defined: create, rename, recolor, change icon, delete.
+- Each group has a default **color** and **icon** that its places inherit.
+- Starter groups on first run:
+
+  | Group     | Color  | Icon        |
+  |-----------|--------|-------------|
+  | Lived     | blue   | `house`     |
+  | Vacations | orange | `plane`     |
+  | Job       | slate  | `briefcase` |
+  | Friends   | green  | `users`     |
+  | Wish list | purple | `star`      |
+  | Other     | gray   | `map-pin`   |
+
+- **Other** is the fallback group: it can be renamed but not deleted.
+- Deleting a group that still has places asks where to move them (default: Other). Places are never silently deleted with their group.
+
+## Places
+
+A place (a location on the map) has:
+
+| Field                 | Notes |
+|-----------------------|-------|
+| `title`               | Required. Pre-filled from the city name when adding. |
+| `lat`, `lng`          | The source of truth for position. |
+| `address`             | Editable text label (address/city). Pre-filled by reverse geocoding, never re-geocoded behind your back. |
+| `groupId`             | Exactly one group. |
+| `note`                | Optional plain text. Line breaks kept, URLs auto-linked. |
+| `imageUrl`            | Optional, at most one. URLs only, no uploads. |
+| `dateFrom`, `dateTo`  | Optional, each end independently. Partial ISO dates: `"2019"`, `"2019-06"`, `"2019-06-14"`. |
+| `color`, `icon`       | Optional overrides of the group's defaults. |
+
+- One place has one date range. Revisiting somewhere is a separate place.
+- Pin: teardrop marker in the place's color with a white icon from a curated set of about 40 Lucide icons.
+
+## Using the app
+
+- **Add**: press *Add*, then click the map. The pin drops, the address and title are pre-filled via Nominatim, and the edit form opens in the sidebar.
+- **Search**: an address search box (runs on Enter, no autocomplete) flies the map to the result so you can place a pin. This follows Nominatim's usage policy: at most 1 request per second, no search-as-you-type.
+- **View**: clicking a pin opens a read-only popup with *Edit* and *Delete*.
+- **Edit**: the form opens in the sidebar. While editing, drag the pin to move it.
+- **Delete**: deletes immediately, with an *Undo* toast.
+
+### Sidebar
+
+- Searchable list of places. Search matches title, address and note. Clicking an entry zooms to the pin.
+- Sorted by date, newest first, undated places last. Can switch to sorting by group or by title.
+- Group show/hide toggles filter both the map and the list.
+- On narrow screens, the sidebar becomes a bottom sheet. Fully usable on a phone, designed for desktop first.
+
+## Persistence
+
+- **Auto-save** to browser storage (per browser and device). Keys are prefixed `ltm:` (e.g. `ltm:data`, `ltm:settings`), because all `<user>.github.io` projects share one origin and therefore one storage.
+- **Export / Import JSON** for backups and for moving data between devices. Phone and laptop do not sync otherwise.
+- Import **replaces** the current data, after a confirmation.
+- Import is validated before anything is touched:
+  - Fatal problems (invalid JSON, missing or unknown `version`, invalid coordinates) reject the whole file with a clear error. Your existing data is left alone.
+  - Minor problems are fixed and reported, e.g. places pointing to an unknown group are moved to Other.
+  - Never a half import.
+
+### File format
+
+```json
+{
+  "version": 1,
+  "groups": [
+    { "id": "lived", "name": "Lived", "color": "#2563eb", "icon": "house" }
+  ],
+  "places": [
+    {
+      "id": "0b6c…",
+      "groupId": "lived",
+      "title": "First flat",
+      "lat": 55.6867,
+      "lng": 12.5701,
+      "address": "Copenhagen, Denmark",
+      "note": "Third floor, no elevator.",
+      "imageUrl": "https://…",
+      "dateFrom": "2005-08",
+      "dateTo": "2010"
+    }
+  ]
+}
+```
+
+IDs are UUIDs (starter groups use readable ids). Settings (background map, last view, Google key) are not part of the file.
+
+## UI and locale
+
+- English UI.
+- Dates are formatted with the browser's locale and only as precise as entered: `"2019"` shows as "2019", and `"2019-06"` shows as "Jun 2019" or "juni 2019".
+
+## Testing
+
+Vitest covers the core logic:
+- JSON validation and migration
+- partial-date parsing, formatting and sorting
+- the group-delete fallback
+- color/icon inheritance
+
+There are no end-to-end browser tests in v1; the UI is checked by hand.
+
+## Code layout
+
+```
+src/
+  domain/   types, default groups, pure logic (+ *.test.ts)
+  map/      Leaflet map, basemap definitions
+```
+
+In code, a location is called `Place`, so it can't be confused with the DOM's global `Location` type.
+
+## Deferred (not v1)
+
+- 3D globe view
+- Multiple visits per place
+- Local photo uploads
+- Markdown notes
+- Date filter and timeline
+- Merge on import
+- Save back to the same file (File System Access API, Chrome/Edge)
+- Sync between devices
