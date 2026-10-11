@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "groups": [
+    { "id": "lived", "name": "Lived", "color": "#2563eb", "icon": "house" },
+    { "id": "vacations", "name": "Vacations", "color": "#ea580c", "icon": "plane" },
+    { "id": "job", "name": "Job", "color": "#475569", "icon": "briefcase" },
+    { "id": "friends", "name": "Friends", "color": "#16a34a", "icon": "users" },
+    { "id": "wish-list", "name": "Wish list", "color": "#9333ea", "icon": "star" },
+    { "id": "other", "name": "Other", "color": "#6b7280", "icon": "map-pin" }
+  ],
+  "places": [
+    {
+      "id": "sample-aarhus",
+      "groupId": "lived",
+      "title": "Student years",
+      "lat": 56.1567,
+      "lng": 10.2108,
+      "address": "Aarhus, Denmark",
+      "note": "Shared flat near the university park.",
+      "dateFrom": "2001-08",
+      "dateTo": "2005-07",
+      "icon": "graduation-cap"
+    },
+    {
+      "id": "sample-copenhagen",
+      "groupId": "lived",
+      "title": "First flat",
+      "lat": 55.6867,
+      "lng": 12.5701,
+      "address": "Copenhagen, Denmark",
+      "note": "Third floor, no elevator.\nBikes everywhere.",
+      "dateFrom": "2005-08",
+      "dateTo": "2010"
+    },
+    {
+      "id": "sample-roskilde",
+      "groupId": "lived",
+      "title": "Home",
+      "lat": 55.6419,
+      "lng": 12.0878,
+      "address": "Roskilde, Denmark",
+      "dateFrom": "2021-03"
+    },
+    {
+      "id": "sample-rome",
+      "groupId": "vacations",
+      "title": "Rome",
+      "lat": 41.8902,
+      "lng": 12.4922,
+      "address": "Rome, Italy",
+      "note": "Colosseum at sunrise. Book tickets ahead: https://www.coopculture.it",
+      "imageUrl": "https://picsum.photos/seed/rome/480/300",
+      "dateFrom": "2019-06-14",
+      "dateTo": "2019-06-21"
+    },
+    {
+      "id": "sample-kyoto",
+      "groupId": "vacations",
+      "title": "Kyoto",
+      "lat": 35.0116,
+      "lng": 135.7681,
+      "address": "Kyoto, Japan",
+      "note": "Cherry blossoms, and the best ramen of my life.",
+      "imageUrl": "https://picsum.photos/seed/kyoto/480/300",
+      "dateFrom": "2023-04",
+      "dateTo": "2023-04"
+    },
+    {
+      "id": "sample-reykjavik",
+      "groupId": "vacations",
+      "title": "Reykjavík",
+      "lat": 64.1466,
+      "lng": -21.9426,
+      "address": "Reykjavík, Iceland",
+      "dateFrom": "2017-02",
+      "dateTo": "2017-02",
+      "icon": "mountain-snow"
+    },
+    {
+      "id": "sample-new-york",
+      "groupId": "vacations",
+      "title": "New York",
+      "lat": 40.758,
+      "lng": -73.9855,
+      "address": "New York, United States",
+      "dateFrom": "2015-10",
+      "dateTo": "2015-10"
+    },
+    {
+      "id": "sample-sydney",
+      "groupId": "vacations",
+      "title": "Sydney",
+      "lat": -33.8568,
+      "lng": 151.2153,
+      "address": "Sydney, Australia",
+      "dateFrom": "2024-01-02",
+      "dateTo": "2024-01-20"
+    },
+    {
+      "id": "sample-berlin",
+      "groupId": "job",
+      "title": "Tech conference",
+      "lat": 52.52,
+      "lng": 13.405,
+      "address": "Berlin, Germany",
+      "note": "Gave my first conference talk.",
+      "dateFrom": "2022-09-12",
+      "dateTo": "2022-09-14",
+      "icon": "ticket"
+    },
+    {
+      "id": "sample-london",
+      "groupId": "friends",
+      "title": "Anna",
+      "lat": 51.5074,
+      "lng": -0.1278,
+      "address": "London, United Kingdom",
+      "note": "Visit when the Christmas markets are on."
+    },
+    {
+      "id": "sample-stockholm",
+      "groupId": "friends",
+      "title": "Erik & Sofie",
+      "lat": 59.3293,
+      "lng": 18.0686,
+      "address": "Stockholm, Sweden"
+    },
+    {
+      "id": "sample-machu-picchu",
+      "groupId": "wish-list",
+      "title": "Machu Picchu",
+      "lat": -13.1631,
+      "lng": -72.545,
+      "address": "Cusco, Peru",
+      "note": "Hike the Inca Trail."
+    },
+    {
+      "id": "sample-el-chalten",
+      "groupId": "wish-list",
+      "title": "Patagonia",
+      "lat": -49.3315,
+      "lng": -72.8863,
+      "address": "El Chaltén, Argentina",
+      "color": "#0891b2",
+      "icon": "mountain"
+    },
+    {
+      "id": "sample-tromso",
+      "groupId": "wish-list",
+      "title": "Northern lights",
+      "lat": 69.6492,
+      "lng": 18.9553,
+      "address": "Tromsø, Norway"
+    },
+    {
+      "id": "sample-mcmurdo",
+      "groupId": "other",
+      "title": "McMurdo Station",
+      "lat": -77.8419,
+      "lng": 166.6863,
+      "address": "Ross Island, Antarctica",
+      "note": "Someday, maybe."
+    }
+  ]
+}

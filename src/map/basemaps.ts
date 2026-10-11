@@ -19,21 +19,20 @@ export const BASEMAPS: readonly Basemap[] = [
     attribution: OSM_ATTRIBUTION,
     maxZoom: 19,
   },
+  // CARTO's light/dark basemaps now require an API key, so Esri's keyless canvas maps fill that role.
   {
-    id: 'carto-light',
-    name: 'CARTO light',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    attribution: `${OSM_ATTRIBUTION} &copy; <a href="https://carto.com/attributions">CARTO</a>`,
-    subdomains: 'abcd',
-    maxZoom: 20,
+    id: 'esri-light-gray',
+    name: 'Light gray (Esri)',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors, and the GIS User Community',
+    maxZoom: 16,
   },
   {
-    id: 'carto-dark',
-    name: 'CARTO dark',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: `${OSM_ATTRIBUTION} &copy; <a href="https://carto.com/attributions">CARTO</a>`,
-    subdomains: 'abcd',
-    maxZoom: 20,
+    id: 'esri-dark-gray',
+    name: 'Dark gray (Esri)',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors, and the GIS User Community',
+    maxZoom: 16,
   },
   {
     id: 'esri-imagery',
@@ -54,3 +53,11 @@ export const BASEMAPS: readonly Basemap[] = [
 ]
 
 export const DEFAULT_BASEMAP_ID = 'osm'
+
+export type GoogleMapType = 'roadmap' | 'satellite'
+
+/** Google layers via the Map Tiles API; only offered when an API key is set. */
+export const GOOGLE_BASEMAPS: readonly { id: string; name: string; mapType: GoogleMapType }[] = [
+  { id: 'google-roadmap', name: 'Google', mapType: 'roadmap' },
+  { id: 'google-satellite', name: 'Google satellite', mapType: 'satellite' },
+]

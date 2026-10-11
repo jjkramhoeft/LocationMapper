@@ -25,15 +25,17 @@ Hosted on GitHub Pages at <https://jjkramhoeft.github.io/LocationMapper/> from [
 ## Map
 
 - Flat Leaflet map (Web Mercator) of the whole world; panning wraps around horizontally. No 3D globe.
-- Selectable background map, all free and keyless:
+- Selectable background map (top right), all free and keyless:
   - OpenStreetMap
-  - CARTO light / CARTO dark
+  - Light gray / Dark gray (Esri canvas)
   - Satellite (Esri World Imagery)
   - OpenTopoMap
-- **Google** is an optional extra layer, enabled only when you paste your own API key into settings. Google requires a billing-enabled key, and its terms only allow its tiles through its own APIs (Map Tiles API or Maps JS). The key is stored in browser storage only, never in source or in exported JSON. Other pages on the same `github.io` origin can read that storage, so restrict the key in Google Cloud to the Pages URL and to the Maps APIs.
+
+  CARTO's light/dark maps were the original plan, but they now require an API key, so Esri's canvas maps replace them.
+- **Google** (roadmap and satellite) is optional and only appears once you paste your own API key under Settings. It uses Google's **Map Tiles API** (2D tiles), the supported way to show Google tiles outside Google's own map library. The key needs that API enabled and a billing account. The key is checked when saved, stored in browser storage only, and never put in source or exported JSON. Other pages on the same `github.io` origin can read that storage, so restrict the key in Google Cloud to the Pages URL and to the Map Tiles API.
 - Remembers the last view (center/zoom) and background map per device. First run shows the whole world.
-- **Fit all** button zooms to all visible pins.
-- Pins cluster when crowded.
+- **Fit all** zooms to all visible pins. On a phone it collapses the bottom sheet first, because a world-wide view can't fit above it.
+- Pins cluster when crowded. A cluster's ring shows the colors of the pins inside it.
 
 ## Groups
 
@@ -89,7 +91,7 @@ A place (a location on the map) has:
 ## Persistence
 
 - **Auto-save** to browser storage (per browser and device). Keys are prefixed `ltm:` (e.g. `ltm:data`, `ltm:settings`), because all `<user>.github.io` projects share one origin and therefore one storage.
-- **Export / Import JSON** for backups and for moving data between devices. Phone and laptop do not sync otherwise.
+- **Export / Import JSON** (database icon in the header) for backups and for moving data between devices. Phone and laptop do not sync otherwise. If the saved data in browser storage can't be read, it is kept under `ltm:data-unreadable` instead of being overwritten.
 - Import **replaces** the current data, after a confirmation.
 - Import is validated before anything is touched:
   - Fatal problems (invalid JSON, missing or unknown `version`, invalid coordinates) reject the whole file with a clear error. Your existing data is left alone.
@@ -121,7 +123,18 @@ A place (a location on the map) has:
 }
 ```
 
-IDs are UUIDs (starter groups use readable ids). Settings (background map, last view, Google key) are not part of the file.
+IDs are UUIDs (starter groups use readable ids). Settings (background map, last view, hidden groups, sort order, Google key) are not part of the file.
+
+### Sample data
+
+[public/sample-data.json](public/sample-data.json) holds 15 test places spread across all six groups, worldwide (Copenhagen to McMurdo Station). It covers:
+- date ranges, open-ended dates and undated places
+- notes with links
+- image URLs
+- color and icon overrides
+- a cluster of nearby pins in Denmark
+
+Load it with **Load sample data**, either from the empty place list or from the import/export menu. It goes through the same check and confirmation as any import, and replaces your current data.
 
 ## UI and locale
 
@@ -131,10 +144,11 @@ IDs are UUIDs (starter groups use readable ids). Settings (background map, last 
 ## Testing
 
 Vitest covers the core logic:
-- JSON validation and migration
+- JSON validation and migration, including that the sample data imports without warnings
 - partial-date parsing, formatting and sorting
 - the group-delete fallback
 - color/icon inheritance
+- the place form's checks, URL linkifying in notes, and the data reducer (including undo of a delete)
 
 There are no end-to-end browser tests in v1; the UI is checked by hand.
 
@@ -142,8 +156,14 @@ There are no end-to-end browser tests in v1; the UI is checked by hand.
 
 ```
 src/
-  domain/   types, default groups, pure logic (+ *.test.ts)
-  map/      Leaflet map, basemap definitions
+  domain/   types, default groups, icons, pure logic: dates, sorting, validation (+ *.test.ts)
+  geo/      Nominatim address lookup and search (rate-limited to 1 request/second)
+  map/      Leaflet map, basemaps, Google Map Tiles session, pin and cluster icons
+  state/    data reducer, browser-storage persistence
+  ui/       sidebar, forms, dialogs, popups, pickers
+  App.tsx   wires state, map and sidebar together
+public/
+  sample-data.json
 ```
 
 In code, a location is called `Place`, so it can't be confused with the DOM's global `Location` type.

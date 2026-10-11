@@ -1,12 +1,14 @@
+import type { IconName } from './icons'
+
+export type { IconName }
+
 /** "YYYY", "YYYY-MM" or "YYYY-MM-DD" — only as precise as the user entered. */
 export type PartialDate = string
-
-/** Kebab-case Lucide icon name, e.g. "house", "plane". */
-export type IconName = string
 
 export interface Group {
   id: string
   name: string
+  /** "#rrggbb" */
   color: string
   icon: IconName
 }
